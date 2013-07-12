@@ -1,0 +1,51 @@
+dropshadow()
+  -webkit-svg-shadow: arguments
+
+body
+  padding: 20px
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
+
+  .fillOverlay
+    fill: #eee
+
+  .shadow
+    stroke: white
+    dropshadow black 0 0.5px 10px
+
+  .overlay
+    cursor: move
+    fill: none
+    pointer-events: all
+
+  .main
+    text
+      font: 12px "Lucida Grande", Helvetica, Arial, sans-serif
+
+    .laneLines
+      stroke: white
+
+    .todayLine
+      stroke: #55f
+      stroke-width: 1.5
+      dropshadow #aaa 1px 0 4px
+
+    .triangle
+      fill: white
+      dropshadow grey 0 1px 10px
+
+    .axis
+      stroke: grey
+      stroke-width: 1
+      text
+        font: 10px "Lucida Grande", Helvetica, Arial, sans-serif
+
+    .mainItem
+      stroke: #bbb
+      stroke-width: 0.5
+      fill: #ddd
+      &.hover
+        stroke: lightblue
+        fill: lightblue
+      text
+        fill: black
+        stroke: none
