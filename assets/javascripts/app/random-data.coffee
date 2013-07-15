@@ -16,7 +16,7 @@ define [],() ->
     generateRandomWorkItems: ->
       types = ['document','note']
       data = []
-      totalWorkItems = @randomNumber(20, 30)
+      totalWorkItems = 30
       console.log 'totalWorkItems',totalWorkItems
       dt = @modDate()
       i = 0
