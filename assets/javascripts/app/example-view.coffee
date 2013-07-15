@@ -14,6 +14,7 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline', 'd3'], (
       @timeline.on 'selectionUpdate', @selectionUpdate
       $('#next').on 'click', @next
       $('#previous').on 'click', @previous
+      $('#more').on 'click', @more
 
     selectionUpdate: (e) =>
       index = e.id
@@ -31,5 +32,16 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline', 'd3'], (
       arr = @timeline.getData()
       index-- if index > 0
       @timeline.centerElement(@find arr, index)
+
+    oneUp = 31
+    more: (e) =>
+      item =
+        id:    oneUp,
+        title: $('#myTitle').val() || "Title #{oneUp}",
+        start: new Date(),
+        text:  $('#myText').val() || "text #{oneUp}",
+        type:  'note'
+      @timeline.addItem item
+      oneUp++
 
   ExampleView

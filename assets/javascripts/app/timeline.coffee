@@ -50,7 +50,7 @@ define ['d3'], () ->
         data = @getData()
 
       lanes = data.lanes
-      @items = data.items
+      items = data.items
       margin =
         top: 0
         right: 0
@@ -60,7 +60,7 @@ define ['d3'], () ->
       height = 200 - margin.top - margin.bottom
       mainHeight = height-50
       @x = d3.time.scale()
-        .domain([ d3.time.sunday(d3.min(@items, (d) -> d.start)), d3.max(@items, (d) -> d.start) ])
+        .domain([ d3.time.sunday(d3.min(items, (d) -> d.start)), d3.max(items, (d) -> d.start) ])
         .range([ 0, width ])
       @y = d3.scale.linear()
         .domain([ 0, @numOfLanes ])
@@ -150,16 +150,18 @@ define ['d3'], () ->
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
 
-      startItem = @getData()[0]
+      startItem = @getData()[@getData().length-1]
       @setSelectedItem startItem
       @centerElement startItem
 
     draw: (direction=null) =>
       rects = undefined
       labels = undefined
+      data = @parseData(@getData())
+      items = data.items
       minExtent = d3.time.day(@x.domain()[0])
       maxExtent = d3.time.day(@x.domain()[1])
-      visItems = @items.filter((d) ->
+      visItems = items.filter((d) ->
         d.start < maxExtent and d.start > minExtent
       )
       #console.log 'visItems',visItems
@@ -256,14 +258,24 @@ define ['d3'], () ->
       rectsEnter.append('text')
         .attr('x', '40')
         .attr('y', '1.6em')
-        .text( (d) -> 'Item: '+d.id )
+        .text( (d) -> d.title )
       if (direction)
-        rectsEnter.transition().duration(500).attr('transform', (d) =>
-          "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
-        )
+        rectsEnter
+          .transition().duration(500)
+          .attr('transform', (d) =>
+            "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
+          )
 
       # EXIT
-      rects.exit().remove()
+      if (direction)
+        rects.exit()
+          .transition().duration(500)
+          .attr('transform', (d) =>
+            "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
+          )
+          .remove()
+      else
+        rects.exit().remove()
 
     centerElement: (el) =>
       #console.log 'Current @x.domain()',@x.domain()
@@ -283,7 +295,10 @@ define ['d3'], () ->
       @draw()
 
     addItem: (item) =>
-      @getData().push item
+      console.log 'adding item', item
+      items = @getData()
+      items.push item
+      @draw()
 
     on: (name, callback) =>
       callbacks = @eventMap[name] = @eventMap[name] || []

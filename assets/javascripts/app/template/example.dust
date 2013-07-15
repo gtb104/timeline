@@ -1,2 +1,10 @@
-<button id="previous">-</button>
-<button id="next">+</button>
+<button id="previous">previous</button>
+<button id="next">next</button>
+<br/>
+<label for="myTitle">Title: </label>
+<input id="myTitle" type="text"></input>
+<br/>
+<label for="myText">Text: </label>
+<input id="myText" type="text"></input>
+<button id="more">add note</button>
+<br/>
