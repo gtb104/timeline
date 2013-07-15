@@ -1,7 +1,7 @@
-define ['lodash', 'jquery', 'templates', './random-data', './timeline', 'd3'], (_,$,templates,RandomData,Timeline) ->
+define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline', 'd3'], (_,$,templates,RandomData,Timeline) ->
 
   class ExampleView
-    index = 0
+    index: 0
 
     render: (element) ->
       templates.render 'example', {}, (err, out) ->
@@ -11,27 +11,23 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline', 'd3'], (
     postRender: ->
       @timeline = Timeline
       @timeline.createTimeline(RandomData.generate())
+      @index = @timeline.getSelectedItem().id
       @timeline.on 'selectionUpdate', @selectionUpdate
       $('#next').on 'click', @next
       $('#previous').on 'click', @previous
       $('#more').on 'click', @more
 
     selectionUpdate: (e) =>
-      index = e.id
+      @index = e.id
 
     find: (arr, index) ->
       _.find arr, (d) -> d.id is index
 
     next: (e) =>
-      currentSelection = @timeline.getSelectedItem()
-      arr = @timeline.getData()
-      index++ if index < arr.length-1
-      @timeline.centerElement(@find arr, index)
+      @timeline.nextItem()
 
     previous: (e) =>
-      arr = @timeline.getData()
-      index-- if index > 0
-      @timeline.centerElement(@find arr, index)
+      @timeline.previousItem()
 
     oneUp = 31
     more: (e) =>

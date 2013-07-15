@@ -10,8 +10,8 @@ define [],() ->
 
     modDate: (dt) ->
       dt = dt || new Date()
-      dateOffset = @randomNumber(0, 7)
-      new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dateOffset, @randomNumber((if dateOffset is 0 then dt.getHours() + 2 else 8), 18), 0, 0)
+      dateOffset = @randomNumber(1, 7)
+      new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dateOffset, @randomNumber(0, 23), 0, 0)
       
     generateRandomWorkItems: ->
       types = ['document','note']
@@ -31,7 +31,7 @@ define [],() ->
         data.push workItem
         totalWorkItems--
       data.reverse()
-      console.log 'data',data
+      
       data
   
   RD = new RandomData()

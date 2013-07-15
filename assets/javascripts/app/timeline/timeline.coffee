@@ -1,12 +1,11 @@
-define ['d3'], () ->
+define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
 
   exports = {}
 
-  class Timeline
+  class Timeline extends EventDispatcher
     numOfLanes: 4
     data: null
     selectedItem: null
-    eventMap: {}
 
     addToLane: (chart, item) ->
       name = item.lane
@@ -68,30 +67,31 @@ define ['d3'], () ->
       @zoom = d3.behavior.zoom()
         .x(@x)
         #.scaleExtent([1, 10]) # Comment this out so the resetting of scale after .x(@x)
-        .on("zoom", @zoom)     # update on click doesn't mess things up
+        .on('zoom', @zoom)     # update on click doesn't mess things up
 
       # MAIN SVG AND G CONTAINER
-      @chart = d3.select("body").append("svg:svg")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top + margin.bottom)
-        .attr("class", "chart")
-      @chart.append("defs").append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("width", width)
-        .attr("height", mainHeight)
-      @main = @chart.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("width", width)
-        .attr("height", mainHeight)
-        .attr("class", "main")
+      d3.select('body').append('section').attr('id','timeline-container')
+      @chart = d3.select('#timeline-container').append('svg:svg')
+        .attr('width', width + margin.right + margin.left)
+        .attr('height', height + margin.top + margin.bottom)
+        .attr('class', 'chart')
+      @chart.append('defs').append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', mainHeight)
+      @main = @chart.append('g')
+        .attr('transform', "translate(#{margin.left},#{margin.top})")
+        .attr('width', width)
+        .attr('height', mainHeight)
+        .attr('class', 'main')
 
       # FILL OVERLAY
-      @main.append("rect")
-        .attr("class", "fillOverlay")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("width", width)
-        .attr("height", mainHeight)
+      @main.append('rect')
+        .attr('class', 'fillOverlay')
+        .attr('transform', "translate(#{margin.left},#{margin.top})")
+        .attr('width', width)
+        .attr('height', mainHeight)
 
       # LANE LINES
       @main.append('g').selectAll('.laneLines')
@@ -119,11 +119,11 @@ define ['d3'], () ->
         .call(@xDateAxis)
 
       # PAN/ZOOM OVERLAY
-      @main.append("rect")
-        .attr("class", "overlay")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("width", width)
-        .attr("height", mainHeight)
+      @main.append('rect')
+        .attr('class', 'overlay')
+        .attr('transform', "translate(#{margin.left},#{margin.top})")
+        .attr('width', width)
+        .attr('height', mainHeight)
         .call(@zoom)
 
       # CLIP_PATH FOR RECTANGLES
@@ -149,6 +149,13 @@ define ['d3'], () ->
       @main.append('polygon')
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
+
+      @toolbar = new Toolbar()
+      @toolbar.render()
+      console.log 'toolbar',@toolbar
+      @toolbar.on 'reset', @onReset
+      @toolbar.on 'zoomIn', @onZoomIn
+      @toolbar.on 'zoomOut', @onZoomOut
 
       startItem = @getData()[@getData().length-1]
       @setSelectedItem startItem
@@ -237,7 +244,8 @@ define ['d3'], () ->
         .on("mouseout", ->
           d3.select(@).classed 'hover', false
         )
-        .on('mouseup', (d) =>
+        .on('click', (d) =>
+          console.log 'Clicked on', d
           @setSelectedItem d
           @dispatchEvent('selectionUpdate', d)
           @centerElement d
@@ -278,14 +286,13 @@ define ['d3'], () ->
         rects.exit().remove()
 
     centerElement: (el) =>
-      #console.log 'Current @x.domain()',@x.domain()
+      console.log 'Centering element', el
       currentCenterdate = @x.invert(@x.range()[1]*0.5)
       newCenterDate = el.start
       offset = newCenterDate - currentCenterdate
       start = new Date(@x.domain()[0]).getTime() + offset
       end = new Date(@x.domain()[1]).getTime() + offset
       @x.domain([start, end])
-      #console.log 'Modified @x.domain()',@x.domain()
       @zoom.x @x
       direction = if offset < 0 then 'right' else 'left'
       @draw(direction)
@@ -294,28 +301,63 @@ define ['d3'], () ->
       #console.log d3.event
       @draw()
 
+    zoomIn: ->
+      console.log 'zoom in'
+      val = @zoom.scale()
+      console.log 'val',val
+      @zoom.scale(val+0.5)
+      console.log 'val',@zoom.scale()
+      @draw(true)
+
+    zoomOut: ->
+      console.log 'zoom out'
+      val = @zoom.scale()
+      console.log 'val',val
+      @zoom.scale(val-0.5)
+      console.log 'val',@zoom.scale()
+      @draw(true)
+
     addItem: (item) =>
       console.log 'adding item', item
       items = @getData()
       items.push item
       @draw()
 
-    on: (name, callback) =>
-      callbacks = @eventMap[name] = @eventMap[name] || []
-      callbacks.push callback
+    nextItem: =>
+      console.log '---> Timeline onNextItem'
+      index = @getSelectedItem().id
+      index += 1
+      data = @getData()
+      if index < data.length
+        el = data[index]
+        @setSelectedItem el
+        @dispatchEvent 'selectionUpdate', el
+        @centerElement el
 
-    filter: (arr, item) ->
-      index = arr.indexOf(item)
-      if index isnt -1
-        arr.splice index, 1
+    previousItem: =>
+      console.log '---> Timeline onPreviousItem'
+      index = @getSelectedItem().id
+      index -= 1
+      if index >= 0
+        el = @getData()[index]
+        @setSelectedItem el
+        @dispatchEvent 'selectionUpdate', el
+        @centerElement el
 
-    off: (name, callback) =>
-      callbacks = @eventMap[name]
-      @filter callbacks, callback
+    onReset: (e) =>
+      @x.domain([ d3.time.sunday(d3.min(@data, (d) -> d.start)), d3.max(@data, (d) -> d.start) ])
+      @zoom.x @x
+      @draw()
+      el = @data[@data.length-1]
+      @setSelectedItem el
+      @dispatchEvent 'selectionUpdate', el
+      @centerElement el
 
-    dispatchEvent: (name, args) ->
-      callbacks = @eventMap[name]
-      callback.apply(null, [args]) for callback in callbacks
+    onZoomIn: (e) =>
+      @zoomIn()
+
+    onZoomOut: (e) =>
+      @zoomOut()
 
     setData: (data) => @data = data
     getData: => @data
@@ -328,6 +370,8 @@ define ['d3'], () ->
   @exports =
     createTimeline: T.createTimeline
     centerElement: T.centerElement
+    nextItem: T.nextItem
+    previousItem: T.previousItem
     addItem: T.addItem
     on: T.on
     off: T.off
