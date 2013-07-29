@@ -1,6 +1,6 @@
 define [],() ->
   exports = {}
-  
+
   class RandomData
     generate: =>
       @generateRandomWorkItems()
@@ -12,12 +12,12 @@ define [],() ->
       dt = dt || new Date()
       dateOffset = @randomNumber(1, 7)
       new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dateOffset, @randomNumber(0, 23), 0, 0)
-      
+
     generateRandomWorkItems: ->
       types = ['document','note']
       data = []
       totalWorkItems = 30
-      console.log 'totalWorkItems',totalWorkItems
+      #console.log 'totalWorkItems',totalWorkItems
       dt = @modDate()
       i = 0
       while totalWorkItems >= i
@@ -31,10 +31,10 @@ define [],() ->
         data.push workItem
         totalWorkItems--
       data.reverse()
-      
+
       data
-  
+
   RD = new RandomData()
-  exports = 
+  exports =
     generate: RD.generate
   exports

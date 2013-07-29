@@ -142,8 +142,8 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @main.append('line')
         .attr('y1', 0)
         .attr('y2', mainHeight)
-        .attr("x1", width * 0.5)
-        .attr("x2", width * 0.5)
+        .attr("x1", width * 0.5 + 0.25)
+        .attr("x2", width * 0.5 + 0.25)
         .attr('class', 'todayLine')
         .attr('clip-path', 'url(#clip)')
       @main.append('polygon')
@@ -152,7 +152,6 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
 
       @toolbar = new Toolbar()
       @toolbar.render()
-      console.log 'toolbar',@toolbar
       @toolbar.on 'reset', @onReset
       @toolbar.on 'zoomIn', @onZoomIn
       @toolbar.on 'zoomOut', @onZoomOut
@@ -162,6 +161,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @centerElement startItem
 
     draw: (direction=null) =>
+      console.log "direction = #{direction}"
       rects = undefined
       labels = undefined
       data = @parseData(@getData())
@@ -173,35 +173,35 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       )
       #console.log 'visItems',visItems
       if (maxExtent - minExtent) > 47091600000
-        console.log 'year'
+        #console.log 'year'
         # Show a major tick every year, minor tick every month
         @xDateAxis
           .ticks(d3.time.years, 1)
           .tickFormat(d3.time.format("%Y"))
           .tickSubdivide(11)
       else if (maxExtent - minExtent) > 12400000000
-        console.log 'month'
+        #console.log 'month'
         # Show a major tick every month, minor tick every week-ish
         @xDateAxis
           .ticks(d3.time.months, 1)
           .tickFormat(d3.time.format("%B"))
           .tickSubdivide(3)
       else if (maxExtent - minExtent) > 2400000000
-        console.log 'week'
+        #console.log 'week'
         # Show a major tick every week(Monday), minor tick every day
         @xDateAxis
           .ticks(d3.time.mondays, 1)
           .tickFormat(d3.time.format("%b %e"))
           .tickSubdivide(6)
       else if (maxExtent - minExtent) > 480000000
-        console.log 'day(2h)'
+        #console.log 'day(2h)'
         # Show a major tick every day, minor tick every 2 hours
         @xDateAxis
           .ticks(d3.time.days, 1)
           .tickFormat(d3.time.format("%b %e"))
           .tickSubdivide(11)
       else
-        console.log 'day(1h)'
+        #console.log 'day(1h)'
         # Show a major tick every day, minor tick every hour
         @xDateAxis
           .ticks(d3.time.days, 1)
@@ -245,7 +245,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
           d3.select(@).classed 'hover', false
         )
         .on('click', (d) =>
-          console.log 'Clicked on', d
+          #console.log 'Clicked on', d
           @setSelectedItem d
           @dispatchEvent('selectionUpdate', d)
           @centerElement d
@@ -286,7 +286,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         rects.exit().remove()
 
     centerElement: (el) =>
-      console.log 'Centering element', el
+      #console.log 'Centering element', el
       currentCenterdate = @x.invert(@x.range()[1]*0.5)
       newCenterDate = el.start
       offset = newCenterDate - currentCenterdate

@@ -3,11 +3,10 @@ define ['jquery', './event-dispatcher', 'templates'], ($,EventDispatcher,templat
   class Toolbar extends EventDispatcher
 
     render: (element) ->
-      console.log 'in render'
       templates.render 'toolbar', {}, (err, out) ->
         $('#timeline-container').append out
       @postRender()
-    
+
     postRender: ->
       $('#timeline-toggle-notes').on 'click', @onClick
       $('#timeline-add-note').on 'click', @onClick
