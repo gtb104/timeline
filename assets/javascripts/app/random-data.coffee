@@ -21,12 +21,13 @@ define [],() ->
       dt = @modDate()
       i = 0
       while totalWorkItems >= i
+        type = types[@randomNumber(0, types.length)]
         workItem =
           id:    totalWorkItems,
-          title: "Title #{totalWorkItems}",
+          title: "#{type} #{totalWorkItems}",
           start: dt,
-          text:  "text #{totalWorkItems}",
-          type:  types[@randomNumber(0, types.length)]
+          text:  "This is the text of a #{type}.",
+          type:  type
         dt = @modDate dt
         data.push workItem
         totalWorkItems--
