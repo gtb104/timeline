@@ -160,8 +160,11 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @setSelectedItem startItem
       @centerElement startItem
 
+    foo: (a, b) ->
+      console.log arguments
+      -1
+
     draw: (direction=null) =>
-      console.log "direction = #{direction}"
       rects = undefined
       labels = undefined
       data = @parseData(@getData())
@@ -214,16 +217,6 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
           d.id
         )
 
-      # UPDATE
-      if (direction)
-        rects.transition().duration(500).attr('transform', (d) =>
-            "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
-          )
-      else
-        rects.attr('transform', (d) =>
-            "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
-          )
-
       # ENTER
       rectsEnter = rects.enter().append('g')
         .attr('class', (d) ->
@@ -273,6 +266,16 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
           .attr('transform', (d) =>
             "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
           )
+
+      # UPDATE
+      if (direction)
+        rects.order().transition().duration(500).attr('transform', (d) =>
+          "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
+        )
+      else
+        rects.order().attr('transform', (d) =>
+          "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
+        )
 
       # EXIT
       if (direction)
