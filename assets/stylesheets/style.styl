@@ -45,16 +45,20 @@ body
       stroke: #55f
       stroke-width: 1
       dropshadow #bbb 1px 0 4px
+      shape-rendering: crispEdges
 
     .triangle
       fill: white
       dropshadow grey 0 1px 10px
+      shape-rendering: crispEdges
 
     .axis
       stroke: grey
       stroke-width: 1
+      shape-rendering: crispEdges
       text
-        font: 10px "Lucida Grande", Helvetica, Arial, sans-serif
+        font: 11px sans-serif
+        stroke: none
 
     .mainItem
       stroke: #bbb
@@ -66,7 +70,6 @@ body
         fill: lightblue
       path
         fill: black
-
       text
         fill: black
         stroke: none
