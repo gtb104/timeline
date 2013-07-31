@@ -9,3 +9,4 @@
 <input id="myText" type="text"></input>
 <button id="more">add note</button>
 <br/>
+<div id="foofoo"></div>

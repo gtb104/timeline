@@ -10,6 +10,7 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline',
 
     postRender: ->
       @timeline = Timeline
+      @timeline.rootDOMElement '#foofoo'
       @timeline.createTimeline(RandomData.generate())
       @index = @timeline.selectedItem().id
       @timeline.on 'selectionUpdate', @selectionUpdate

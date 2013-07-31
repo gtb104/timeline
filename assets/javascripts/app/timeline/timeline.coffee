@@ -150,7 +150,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
 
-      @toolbar = new Toolbar()
+      @toolbar = new Toolbar(@rootDOMElement())
       @toolbar.render()
       @toolbar.on 'reset', @onReset
       @toolbar.on 'zoomIn', @onZoomIn
