@@ -3,14 +3,16 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
   exports = {}
 
   class Timeline extends EventDispatcher
-    numOfLanes: 4
-    data: null
-    selectedItem: null
+    _numberOfLanes: 4
+    _data: null
+    _parsedData: null
+    _selectedItem: null
+    _rootDOMElement: null
 
     addToLane: (chart, item) ->
-      name = item.lane
-      chart.lanes[name] = []  unless chart.lanes[name]
-      lane = chart.lanes[name]
+      index = item.lane
+      chart.lanes[index] = []  unless chart.lanes[index]
+      lane = chart.lanes[index]
       lane.push item
 
     parseData: (data) ->
@@ -23,7 +25,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         item.lane = j
         @addToLane chart, item
         i++
-        if j < @numOfLanes-1 then j++ else j = 0
+        if j < @numberOfLanes()-1 then j++ else j = 0
       @collapseLanes chart
 
     collapseLanes: (chart) ->
@@ -41,15 +43,10 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       lanes: lanes
       items: items
 
-    createTimeline: (data=null) =>
-      if data isnt null
-        @setData(data)
-        data = @parseData(@getData())
-      else
-        data = @getData()
-
-      lanes = data.lanes
-      items = data.items
+    createTimeline: (data) =>
+      @data(data) if data?
+      lanes = @_parsedData.lanes
+      items = @_parsedData.items
       margin =
         top: 0
         right: 0
@@ -62,16 +59,19 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         .domain([ d3.time.sunday(d3.min(items, (d) -> d.start)), d3.max(items, (d) -> d.start) ])
         .range([ 0, width ])
       @y = d3.scale.linear()
-        .domain([ 0, @numOfLanes ])
+        .domain([ 0, @numberOfLanes() ])
         .range([ 0, mainHeight ])
       @zoom = d3.behavior.zoom()
         .x(@x)
         #.scaleExtent([1, 10]) # Comment this out so the resetting of scale after .x(@x)
         .on('zoom', @zoom)     # update on click doesn't mess things up
 
+      unless @rootDOMElement()
+        d3.select('body').append('section').attr('id','timeline-container')
+        @rootDOMElement '#timeline-container'
+
       # MAIN SVG AND G CONTAINER
-      d3.select('body').append('section').attr('id','timeline-container')
-      @chart = d3.select('#timeline-container').append('svg:svg')
+      @chart = d3.select(@rootDOMElement()).append('svg:svg')
         .attr('width', width + margin.right + margin.left)
         .attr('height', height + margin.top + margin.bottom)
         .attr('class', 'chart')
@@ -156,8 +156,8 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @toolbar.on 'zoomIn', @onZoomIn
       @toolbar.on 'zoomOut', @onZoomOut
 
-      startItem = @getData()[@getData().length-1]
-      @setSelectedItem startItem
+      startItem = @data()[@data().length-1]
+      @selectedItem startItem
       @centerElement startItem
 
     foo: (a, b) ->
@@ -167,8 +167,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
     draw: (direction=null) =>
       rects = undefined
       labels = undefined
-      data = @parseData(@getData())
-      items = data.items
+      items = @_parsedData.items
       minExtent = d3.time.day(@x.domain()[0])
       maxExtent = d3.time.day(@x.domain()[1])
       visItems = items.filter((d) ->
@@ -239,7 +238,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         )
         .on('click', (d) =>
           #console.log 'Clicked on', d
-          @setSelectedItem d
+          @selectedItem d
           @dispatchEvent('selectionUpdate', d)
           @centerElement d
         )
@@ -294,6 +293,9 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       else
         rects.exit().remove()
 
+    reset: =>
+      @onReset()
+
     centerElement: (el) =>
       #console.log 'Centering element', el
       currentCenterdate = @x.invert(@x.range()[1]*0.5)
@@ -328,37 +330,37 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
 
     addItem: (item) =>
       console.log 'adding item', item
-      items = @getData()
-      items.push item
+      @_data.push item
+      @_parsedData = @parseData @_data
       @draw()
 
     nextItem: =>
       console.log '---> Timeline onNextItem'
-      index = @getSelectedItem().id
+      index = @selectedItem().id
       index += 1
-      data = @getData()
+      data = @data()
       if index < data.length
         el = data[index]
-        @setSelectedItem el
+        @selectedItem el
         @dispatchEvent 'selectionUpdate', el
         @centerElement el
 
     previousItem: =>
       console.log '---> Timeline onPreviousItem'
-      index = @getSelectedItem().id
+      index = @selectedItem().id
       index -= 1
       if index >= 0
-        el = @getData()[index]
-        @setSelectedItem el
+        el = @data()[index]
+        @selectedItem el
         @dispatchEvent 'selectionUpdate', el
         @centerElement el
 
     onReset: (e) =>
-      @x.domain([ d3.time.sunday(d3.min(@data, (d) -> d.start)), d3.max(@data, (d) -> d.start) ])
+      @x.domain([ d3.time.sunday(d3.min(@_data, (d) -> d.start)), d3.max(@_data, (d) -> d.start) ])
       @zoom.x @x
       @draw()
-      el = @data[@data.length-1]
-      @setSelectedItem el
+      el = @_data[@_data.length-1]
+      @selectedItem el
       @dispatchEvent 'selectionUpdate', el
       @centerElement el
 
@@ -368,12 +370,20 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
     onZoomOut: (e) =>
       @zoomOut()
 
-    setData: (data) => @data = data
-    getData: => @data
-    setNumOfLanes: (num) => @numOfLanes = num
-    getNumOfLanes: => @numOfLanes
-    setSelectedItem: (item) => @selectedItem = item
-    getSelectedItem: => @selectedItem
+    data: (data) =>
+      if data?
+        console.log 'setting data'
+        @_data = data
+        @_parsedData = @parseData data
+      else
+        console.log 'returning data'
+        @_data
+
+    numberOfLanes: (num) => if num? then @_numberOfLanes = num else @_numberOfLanes
+
+    selectedItem: (item) => if item? then @_selectedItem = item else @_selectedItem
+
+    rootDOMElement: (el) => if el? then @_rootDOMElement = el else @_rootDOMElement
 
   T = new Timeline()
   @exports =
@@ -384,8 +394,8 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
     addItem: T.addItem
     on: T.on
     off: T.off
-    setData: T.setData
-    getData: T.getData
-    setSelectedItem: T.setSelectedItem
-    getSelectedItem: T.getSelectedItem
+    data: T.data
+    reset: T.reset
+    selectedItem: T.selectedItem
+    rootDOMElement: T.rootDOMElement
   @exports

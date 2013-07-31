@@ -11,11 +11,12 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline',
     postRender: ->
       @timeline = Timeline
       @timeline.createTimeline(RandomData.generate())
-      @index = @timeline.getSelectedItem().id
+      @index = @timeline.selectedItem().id
       @timeline.on 'selectionUpdate', @selectionUpdate
       $('#next').on 'click', @next
       $('#previous').on 'click', @previous
       $('#more').on 'click', @more
+      $('#newData').on 'click', @newData
 
     selectionUpdate: (e) =>
       #@index = e.id
@@ -40,5 +41,9 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline',
         type:  'note'
       @timeline.addItem item
       oneUp++
+
+    newData: =>
+      @timeline.data RandomData.generate()
+      @timeline.reset()
 
   ExampleView
