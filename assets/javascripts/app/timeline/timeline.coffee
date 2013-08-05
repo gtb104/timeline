@@ -231,6 +231,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
           else
             "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
         )
+        .style('opacity', (d) -> if d.userGenerated then showUserNotes else 1)
         .on("mouseover", ->
           d3.select(@).classed 'hover', true
         )
@@ -366,12 +367,12 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
     onZoomOut: (e) =>
       @zoomOut()
 
-    toggle = 1
+    showUserNotes = 1
     onToggleUserNotes: (e) =>
-      nodes = d3.selectAll('.mainItem.note').filter((d) -> d.userGenerated)[0]
-      if nodes.length > 0
-        toggle = if !toggle then 1 else 0
-        d3.selectAll(nodes).transition().style('opacity', toggle)
+      showUserNotes = if !showUserNotes then 1 else 0
+      d3.selectAll(d3.selectAll('.mainItem.note').filter((d) -> d.userGenerated)[0])
+        .style('pointer-events', -> if showUserNotes then 'all' else 'none')
+        .transition().style('opacity', showUserNotes)
 
     data: (data) =>
       if data?
