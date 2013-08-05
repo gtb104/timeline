@@ -39,7 +39,8 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline',
         title: $('#myTitle').val() || "Title #{oneUp}",
         start: new Date(),
         text:  $('#myText').val() || "text #{oneUp}",
-        type:  'note'
+        type:  'note',
+        userGenerated: true
       @timeline.addItem item
       oneUp++
 

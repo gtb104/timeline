@@ -155,6 +155,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @toolbar.on 'reset', @onReset
       @toolbar.on 'zoomIn', @onZoomIn
       @toolbar.on 'zoomOut', @onZoomOut
+      @toolbar.on 'toggleUserNotes', @onToggleUserNotes
 
       startItem = @data()[@data().length-1]
       @selectedItem startItem
@@ -364,6 +365,13 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
 
     onZoomOut: (e) =>
       @zoomOut()
+
+    toggle = 1
+    onToggleUserNotes: (e) =>
+      nodes = d3.selectAll('.mainItem.note').filter((d) -> d.userGenerated)[0]
+      if nodes.length > 0
+        toggle = if !toggle then 1 else 0
+        d3.selectAll(nodes).transition().style('opacity', toggle)
 
     data: (data) =>
       if data?
