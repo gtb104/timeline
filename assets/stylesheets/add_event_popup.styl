@@ -1,0 +1,50 @@
+.dropshadow {
+  -moz-box-shadow:    0px 1px 20px #000;
+  -webkit-box-shadow: 0px 1px 20px #000;
+  box-shadow:         0px 1px 20px #000;
+}
+
+.addEventWrapper
+  position: absolute
+  width: 400px
+  height: 218px
+  .arrow
+    position: absolute
+    top: 73px
+    width: 0
+    height: 0
+    border-right: 10px solid #ddd
+    border-top: 10px solid transparent
+    border-bottom: 10px solid transparent
+  .borderContainer
+    position: absolute
+    top: 0px
+    left: 10px
+    right: 0px
+    bottom: 0px
+    border: 1px solid #ddd
+    background-color: #ddd
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eee), to(#ccc))
+    background-image: -webkit-linear-gradient(top, #eee, #ccc)
+    background-image: -moz-linear-gradient(top, #eee, #ccc)
+    border-radius: 10px
+    padding: 10px
+    .mainContainer
+      background-color: white
+      padding: 10px
+      border: 1px solid #ddd
+      border-radius: 5px
+      input:first-of-type
+        margin-left: 2px
+      input
+        width: 303px
+        height: 16px
+        margin-bottom: 8px
+      textarea
+        width: 340px
+        height: 65px
+    button
+      float: right
+      margin-left: 10px
+      margin-right: 11px
+      margin-top: 8px

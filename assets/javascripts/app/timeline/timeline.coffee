@@ -1,4 +1,4 @@
-define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
+define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventDispatcher,Toolbar,AddEventView) ->
 
   exports = {}
 
@@ -156,6 +156,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       @toolbar.on 'zoomIn', @onZoomIn
       @toolbar.on 'zoomOut', @onZoomOut
       @toolbar.on 'toggleUserNotes', @onToggleUserNotes
+      @toolbar.on 'addUserNote', @onAddUserNote
 
       startItem = @data()[@data().length-1]
       @selectedItem startItem
@@ -329,6 +330,7 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
       console.log 'adding item', item
       @_data.push item
       @_parsedData = @parseData @_data
+      console.log @_parsedData
       @draw()
 
     nextItem: =>
@@ -351,6 +353,31 @@ define ['./event-dispatcher', './toolbar','d3'], (EventDispatcher,Toolbar) ->
         @selectedItem el
         @dispatchEvent 'selectionUpdate', el
         @centerElement el
+
+    onAddUserNote: =>
+      @popup = new AddEventView(@rootDOMElement())
+      $popup = $('.addEventWrapper')
+      bounds = $('#timeline-toolbar')[0].getBoundingClientRect()
+      left = bounds.width + bounds.left - 5
+      top = Math.round((bounds.top + bounds.height*0.5) - parseFloat($popup.css('height'))*0.5)
+      $popup.css('left',left).css('top',top)
+      @popup.on 'addEventSave', @onAddEventSave
+      @popup.on 'addEventCancel', @onAddEventCancel
+
+    onAddEventSave: (data) =>
+      console.log 'onAddEventSave', data
+      @addItem data
+      @popup.off 'addEventSave', @onAddEventSave
+      @popup.off 'addEventCancel', @onAddEventCancel
+      @popup.remove()
+      @popup = null
+
+    onAddEventCancel: =>
+      console.log 'onAddEventCancel'
+      @popup.off 'addEventSave', @onAddEventSave
+      @popup.off 'addEventCancel', @onAddEventCancel
+      @popup.remove()
+      @popup = null
 
     onReset: (e) =>
       @x.domain([ d3.time.sunday(d3.min(@_data, (d) -> d.start)), d3.max(@_data, (d) -> d.start) ])

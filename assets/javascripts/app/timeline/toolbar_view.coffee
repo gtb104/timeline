@@ -12,7 +12,7 @@ define ['jquery', './event-dispatcher', 'templates'], ($,EventDispatcher,templat
 
     postRender: ->
       $('#timeline-toggle-notes').on 'click', @onToggleClick
-      $('#timeline-add-note').on 'click', @onToggleClick
+      $('#timeline-add-note').on 'click', @onClick
       $('#timeline-reset').on 'click', @onClick
       $('#timeline-next').on 'click', @onClick
       $('#timeline-previous').on 'click', @onClick

@@ -1,28 +1,12 @@
+@import 'toolbar'
+@import 'add_event_popup'
+
 dropshadow()
   -webkit-svg-shadow: arguments
 
 body
   padding: 20px
   font: 14px sans-serif
-
-  .timeline-toolbar
-    background-color: white
-    position: absolute
-    top: 102px
-    border-top: 1px solid grey
-    border-right: 2px solid grey
-    border-bottom: 2px solid grey
-    border-bottom-right-radius: 3px
-    border-top-right-radius: 3px
-    .timeline-toolbar-button
-      padding: 5px
-      cursor: pointer
-      &.toggled
-        background-color: #d1d1d1
-      &:hover
-        background-color: rgb(6,128,196)
-      &:active
-        background-color: rgb(4,110,177)
 
   .fillOverlay
     fill: #eee
