@@ -369,6 +369,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @addItem data
       @popup.off 'addEventSave', @onAddEventSave
       @popup.off 'addEventCancel', @onAddEventCancel
+      $('#timeline-add-note').removeClass('toggled')
       @popup.remove()
       @popup = null
 
@@ -376,6 +377,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       console.log 'onAddEventCancel'
       @popup.off 'addEventSave', @onAddEventSave
       @popup.off 'addEventCancel', @onAddEventCancel
+      $('#timeline-add-note').removeClass('toggled')
       @popup.remove()
       @popup = null
 
