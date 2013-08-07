@@ -8,6 +8,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
     _parsedData: null
     _selectedItem: null
     _rootDOMElement: null
+    _popupClass: AddEventView
 
     addToLane: (chart, item) ->
       index = item.lane
@@ -327,10 +328,9 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @draw(true)
 
     addItem: (item) =>
-      console.log 'adding item', item
+      #console.log 'adding item', item
       @_data.push item
       @_parsedData = @parseData @_data
-      console.log @_parsedData
       @draw()
 
     nextItem: =>
@@ -355,7 +355,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         @centerElement el
 
     onAddUserNote: =>
-      @popup = new AddEventView(@rootDOMElement())
+      @popup = new @_popupClass(@rootDOMElement())
       $popup = $('.addEventWrapper')
       bounds = $('#timeline-toolbar')[0].getBoundingClientRect()
       left = bounds.width + bounds.left - 5
@@ -365,7 +365,6 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @popup.on 'addEventCancel', @onAddEventCancel
 
     onAddEventSave: (data) =>
-      console.log 'onAddEventSave', data
       @addItem data
       @popup.off 'addEventSave', @onAddEventSave
       @popup.off 'addEventCancel', @onAddEventCancel
@@ -374,7 +373,6 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @popup = null
 
     onAddEventCancel: =>
-      console.log 'onAddEventCancel'
       @popup.off 'addEventSave', @onAddEventSave
       @popup.off 'addEventCancel', @onAddEventCancel
       $('#timeline-add-note').removeClass('toggled')
@@ -418,6 +416,8 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
 
     rootDOMElement: (el) => if el? then @_rootDOMElement = el else @_rootDOMElement
 
+    popupClass: (cls) => if cls? then @_popupClass = cls else @_popupClass
+
   T = new Timeline()
   @exports =
     createTimeline: T.createTimeline
@@ -431,4 +431,5 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
     reset: T.reset
     selectedItem: T.selectedItem
     rootDOMElement: T.rootDOMElement
+    popupClass: T.popupClass
   @exports
