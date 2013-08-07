@@ -28,9 +28,14 @@ define ['./event-dispatcher', 'templates'], (EventDispatcher,templates) ->
 
       $('#eventTitle').focus()
 
+    uuid: ->
+      'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
+        r = Math.random()*16|0
+        v = if c is 'x' then r else (r&0x3|0x8)
+        v.toString(16)
 
     getData: ->
-      id: new Date().getTime(),
+      id: @uuid(),
       title: $('#eventTitle').val(),
       start: new Date($('#eventDate').val()),
       text: $('#eventText').val(),
@@ -42,8 +47,6 @@ define ['./event-dispatcher', 'templates'], (EventDispatcher,templates) ->
 
     onSave: (e) =>
       @dispatchEvent 'addEventSave', @getData()
-      #$('.addEventWrapper').remove()
 
     onCancel: =>
       @dispatchEvent 'addEventCancel'
-      #$('.addEventWrapper').remove()

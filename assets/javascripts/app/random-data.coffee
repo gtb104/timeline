@@ -2,6 +2,12 @@ define [],() ->
   exports = {}
 
   class RandomData
+    uuid: ->
+      'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
+        r = Math.random()*16|0
+        v = if c is 'x' then r else (r&0x3|0x8)
+        v.toString(16)
+
     generate: =>
       @generateRandomWorkItems()
 
@@ -23,11 +29,11 @@ define [],() ->
       while totalWorkItems >= i
         type = types[@randomNumber(0, types.length)]
         workItem =
-          id:    totalWorkItems,
+          id: @uuid(),
           title: "#{type} #{totalWorkItems}",
           start: dt,
-          text:  "This is the text of a #{type}.",
-          type:  type,
+          text: "This is the text of a #{type}.",
+          type: type,
           userGenerated: if type is 'note' then Math.round(Math.random(0,1)) else 0
         dt = @modDate dt
         data.push workItem
