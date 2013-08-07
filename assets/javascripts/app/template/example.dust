@@ -1,12 +1,5 @@
-<button id="previous">previous</button>
-<button id="next">next</button>
+<button id="previous">previous item</button>
+<button id="next">next item</button>
 <button id="newData">generate new data</button>
-<br/>
-<label for="myTitle">Title: </label>
-<input id="myTitle" type="text"></input>
-<br/>
-<label for="myText">Text: </label>
-<input id="myText" type="text"></input>
-<button id="more">add note</button>
 <br/>
 <div id="foofoo"></div>

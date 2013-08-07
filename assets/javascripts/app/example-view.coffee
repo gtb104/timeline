@@ -1,7 +1,12 @@
-define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline', 'd3'], (_,$,templates,RandomData,Timeline) ->
+define ['lodash',
+  'jquery',
+  'templates',
+  './random-data',
+  './timeline/timeline',
+  'd3'
+], (_,$,templates,RandomData,Timeline) ->
 
   class ExampleView
-    #index: 0
 
     render: (element) ->
       templates.render 'example', {}, (err, out) ->
@@ -16,33 +21,16 @@ define ['lodash', 'jquery', 'templates', './random-data', './timeline/timeline',
       @timeline.on 'selectionUpdate', @selectionUpdate
       $('#next').on 'click', @next
       $('#previous').on 'click', @previous
-      $('#more').on 'click', @more
       $('#newData').on 'click', @newData
 
     selectionUpdate: (e) =>
-      #@index = e.id
       console.log 'selected item', arguments
-
-    find: (arr, index) ->
-      _.find arr, (d) -> d.id is index
 
     next: (e) =>
       @timeline.nextItem()
 
     previous: (e) =>
       @timeline.previousItem()
-
-    oneUp = 31
-    more: (e) =>
-      item =
-        id:    oneUp,
-        title: $('#myTitle').val() || "Title #{oneUp}",
-        start: new Date(),
-        text:  $('#myText').val() || "text #{oneUp}",
-        type:  'note',
-        userGenerated: true
-      @timeline.addItem item
-      oneUp++
 
     newData: =>
       @timeline.data RandomData.generate()
