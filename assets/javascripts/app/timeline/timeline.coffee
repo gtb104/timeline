@@ -68,11 +68,13 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .on('zoom', @zoom)     # update on click doesn't mess things up
 
       unless @rootDOMElement()
-        d3.select('body').append('section').attr('id','timeline-container')
-        @rootDOMElement '#timeline-container'
+        @rootDOMElement 'body'
 
       # MAIN SVG AND G CONTAINER
-      @chart = d3.select(@rootDOMElement()).append('svg:svg')
+      @chart = d3.select(@rootDOMElement()).append('section')
+        .attr('id','timeline-container')
+        .attr('class','timeline-container')
+        .append('svg:svg')
         .attr('width', width + margin.right + margin.left)
         .attr('height', height + margin.top + margin.bottom)
         .attr('class', 'chart')
@@ -88,7 +90,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .attr('class', 'main')
 
       # FILL OVERLAY
-      @main.append('rect')
+      @main.append('svg:rect')
         .attr('class', 'fillOverlay')
         .attr('transform', "translate(#{margin.left},#{margin.top})")
         .attr('width', width)
@@ -98,7 +100,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @main.append('g').selectAll('.laneLines')
         .data(lanes)
         .enter()
-        .append('line')
+        .append('svg:line')
         .attr('x1', 0)
         .attr('y1', (d) =>
           d3.round(@y(d.id)) + 0.5
@@ -114,13 +116,13 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .scale(@x)
         .orient('bottom')
         .tickSize(12, 6, 0)
-      @main.append('g')
+      @main.append('svg:g')
         .attr('transform', "translate(0,#{mainHeight})")
         .attr('class', 'main axis date')
         .call(@xDateAxis)
 
       # PAN/ZOOM OVERLAY
-      @main.append('rect')
+      @main.append('svg:rect')
         .attr('class', 'overlay')
         .attr('transform', "translate(#{margin.left},#{margin.top})")
         .attr('width', width)
@@ -128,11 +130,11 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .call(@zoom)
 
       # CLIP_PATH FOR RECTANGLES
-      @itemRects = @main.append('g')
+      @itemRects = @main.append('svg:g')
         .attr('clip-path', 'url(#clip)')
 
       # DROP SHADOW
-      @main.append('line')
+      @main.append('svg:line')
         .attr('y1', 0)
         .attr('y2', 0)
         .attr("x1", 0)
@@ -140,18 +142,18 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .attr('class', 'shadow')
 
       # TODAY LINE
-      @main.append('line')
+      @main.append('svg:line')
         .attr('y1', 0)
         .attr('y2', mainHeight)
         .attr("x1", width * 0.5 + 0.25)
         .attr("x2", width * 0.5 + 0.25)
         .attr('class', 'todayLine')
         .attr('clip-path', 'url(#clip)')
-      @main.append('polygon')
+      @main.append('svg:polygon')
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
 
-      @toolbar = new Toolbar(@rootDOMElement())
+      @toolbar = new Toolbar('.timeline-container')
       @toolbar.render()
       @toolbar.on 'reset', @onReset
       @toolbar.on 'zoomIn', @onZoomIn
