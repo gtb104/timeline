@@ -23,6 +23,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       chart = lanes: {}
       while i < length
         item = data[i]
+        item.index = i
         item.lane = j
         @addToLane chart, item
         i++
@@ -336,8 +337,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
       @draw()
 
     nextItem: =>
-      console.log '---> Timeline onNextItem'
-      index = @selectedItem().id
+      index = @selectedItem().index
       index += 1
       data = @data()
       if index < data.length
@@ -347,8 +347,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         @centerElement el
 
     previousItem: =>
-      console.log '---> Timeline onPreviousItem'
-      index = @selectedItem().id
+      index = @selectedItem().index
       index -= 1
       if index >= 0
         el = @data()[index]
@@ -405,11 +404,9 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
 
     data: (data) =>
       if data?
-        console.log 'setting data'
         @_data = data
         @_parsedData = @parseData data
       else
-        console.log 'returning data'
         @_data
 
     numberOfLanes: (num) => if num? then @_numberOfLanes = num else @_numberOfLanes
