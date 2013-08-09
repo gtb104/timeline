@@ -32,7 +32,7 @@ define [],() ->
           id: @uuid(),
           title: "#{type} #{totalWorkItems}",
           start: dt,
-          text: "This is the text of a #{type}.",
+          text: "This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.  This is the text of a #{type}.",
           type: type,
           userGenerated: if type is 'note' then Math.round(Math.random(0,1)) else 0
         dt = @modDate dt

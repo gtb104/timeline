@@ -1,0 +1,57 @@
+.timeline-tooltip
+  position: fixed
+  width: 200px
+  height: 115px
+  .content
+    position: absolute
+    background-color: #333
+    border: 1px solid #333
+    border-radius: 6px
+    padding: 6px
+    top: 0
+    bottom: 10px
+    left: 0
+    right: 0
+    .text
+      font: 11px sans-serif
+      margin: 0
+      color: #eee
+      display: -webkit-box
+      -webkit-line-clamp: 5
+      -webkit-box-orient: vertical
+      -moz-box-orient: vertical
+      -ms-box-orient: vertical
+      overflow: hidden
+      text-overflow: ellipsis
+    .buttons
+      position: absolute
+      bottom: 5px
+      width: 100%
+      cursor: pointer
+      .btn
+        display: inline-block
+        width: 28%
+        height: 20px
+        &:nth-child(even)
+          margin: 0 10px 0 10px
+        &:hover
+          background-color: #666
+        img
+          padding-left: 5px
+        p
+          font: 11px sans-serif
+          color: rgb(182,223,241)
+          display: inline-block
+          margin: 0
+          line-height: 21px
+          vertical-align: top
+          padding-left: 3px
+  .arrow
+    position: absolute
+    left: 88px
+    bottom: 0
+    width: 0
+    height: 0
+    border-top: 10px solid #333
+    border-right: 10px solid transparent
+    border-left: 10px solid transparent

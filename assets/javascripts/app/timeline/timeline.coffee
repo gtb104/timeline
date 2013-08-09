@@ -1,4 +1,8 @@
-define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventDispatcher,Toolbar,AddEventView) ->
+define ['./event-dispatcher',
+  './toolbar_view',
+  './add_event_view',
+  './tooltip_view',
+  'd3'], (EventDispatcher,ToolbarV,AddEventV,TooltipV) ->
 
   exports = {}
 
@@ -8,7 +12,8 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
     _parsedData: null
     _selectedItem: null
     _rootDOMElement: null
-    _popupClass: AddEventView
+    _popupClass: AddEventV
+    _showTooltip: true
 
     addToLane: (chart, item) ->
       index = item.lane
@@ -154,7 +159,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
 
-      @toolbar = new Toolbar('.timeline-container')
+      @toolbar = new ToolbarV('.timeline-container')
       @toolbar.render()
       @toolbar.on 'reset', @onReset
       @toolbar.on 'zoomIn', @onZoomIn
@@ -223,6 +228,7 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         )
 
       # ENTER
+      context = @
       rectsEnter = rects.enter().append('g')
         .attr('class', (d) ->
           'mainItem ' + d.type
@@ -237,11 +243,13 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
             "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
         )
         .style('opacity', (d) -> if d.userGenerated then showUserNotes else 1)
-        .on("mouseover", ->
+        .on("mouseover", (d) ->
           d3.select(@).classed 'hover', true
+          context.createTooltip @, d if context.showTooltip()
         )
         .on("mouseout", ->
           d3.select(@).classed 'hover', false
+          context.removeAllTooltips() if context.showTooltip()
         )
         .on('click', (d) =>
           #console.log 'Clicked on', d
@@ -355,6 +363,14 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
         @dispatchEvent 'selectionUpdate', el
         @centerElement el
 
+    createTooltip: (el, d) ->
+      #console.log 'create tooltip',el, d
+      new TooltipV el, d
+
+    removeAllTooltips: ->
+      #console.log 'hide all tooltips'
+      $('.timeline-tooltip').remove()
+
     onAddUserNote: =>
       @popup = new @_popupClass(@rootDOMElement())
       $popup = $('.addEventWrapper')
@@ -416,6 +432,8 @@ define ['./event-dispatcher', './toolbar_view','./add_event_view','d3'], (EventD
     rootDOMElement: (el) => if el? then @_rootDOMElement = el else @_rootDOMElement
 
     popupClass: (cls) => if cls? then @_popupClass = cls else @_popupClass
+
+    showTooltip: (bool) => if bool? then @_showTooltip = bool else @_showTooltip
 
   T = new Timeline()
   @exports =
