@@ -171,10 +171,6 @@ define ['./event-dispatcher',
       @selectedItem startItem
       @centerElement startItem
 
-    foo: (a, b) ->
-      console.log arguments
-      -1
-
     draw: (direction=null) =>
       rects = undefined
       labels = undefined
@@ -247,7 +243,7 @@ define ['./event-dispatcher',
           d3.select(@).classed 'hover', true
           context.createTooltip @, d if context.showTooltip()
         )
-        .on("mouseout", ->
+        .on("mouseout", () ->
           d3.select(@).classed 'hover', false
           context.removeAllTooltips() if context.showTooltip()
         )
@@ -307,7 +303,6 @@ define ['./event-dispatcher',
       @onReset()
 
     centerElement: (el) =>
-      #console.log 'Centering element', el
       currentCenterdate = @x.invert(@x.range()[1]*0.5)
       newCenterDate = el.start
       offset = newCenterDate - currentCenterdate
@@ -319,7 +314,6 @@ define ['./event-dispatcher',
       @draw(direction)
 
     zoom: =>
-      #console.log d3.event
       @draw()
 
     zoomIn: ->
@@ -363,13 +357,37 @@ define ['./event-dispatcher',
         @dispatchEvent 'selectionUpdate', el
         @centerElement el
 
+    tips = {}
     createTooltip: (el, d) ->
-      #console.log 'create tooltip',el, d
-      new TooltipV el, d
+      @showTooltipTimer = setTimeout =>
+        tip = new TooltipV(el, d)
+        tip.on 'editData', @onEditData
+        tip.on 'toggleVisibility', @onToggleVisibility
+        tip.on 'markAsFavorite', @onMarkAsFavorite
+        tip.on 'removed', ->
+          tip.off 'editData'
+          tip.off 'toggleVisibility'
+          tip.off 'markAsFavorite'
+          tip.off 'removed'
+          tip = null
+        tips[tip.id] = tip
+      , 2000
+
+    onEditData: (d) =>
+      console.log 'editData', d
+
+    onToggleVisibility: (d) =>
+      console.log 'toggleVisibility', d
+
+    onMarkAsFavorite: (d) =>
+      console.log 'markAsFavorite', d
 
     removeAllTooltips: ->
-      #console.log 'hide all tooltips'
-      $('.timeline-tooltip').remove()
+      clearTimeout(@showTooltipTimer)
+      for tip of tips
+        tips[tip].remove()
+        tips[tip] = null
+        delete tips[tip]
 
     onAddUserNote: =>
       @popup = new @_popupClass(@rootDOMElement())

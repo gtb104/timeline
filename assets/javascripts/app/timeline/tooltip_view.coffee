@@ -2,28 +2,28 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
 
   class TimelineTooltip extends EventDispatcher
 
+    mouseIsOver = false
+
     constructor: (@el, @data) ->
       @id = new Date().getTime()
       @render()
 
     render: ->
-      #console.log 'render el is ',@el
       templates.render 'tooltip_view', @renderData(), (err,out) ->
-        #console.log out
         $('#timeline-container').append out
       @postRender()
 
     renderData: ->
-      #console.log 'renderData', @id, @data
       id: @id,
       text: @data.text,
       isHidden: false #use 1 and '' as true/false are not treated like true booleans b Dust
 
     postRender: ->
-      #register event handlers
       $("##{@id} .edit").on 'click', @onEdit
       $("##{@id} .show").on 'click', @onShow
       $("##{@id} .star").on 'click', @onStar
+      $("##{@id}").on 'mouseover', @onMouseover
+      $("##{@id}").on 'mouseout', @onMouseout
       # move into position
       bounds = @el.getBoundingClientRect()
       top = bounds.top - 115 + 5
@@ -31,15 +31,33 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
       $("##{@id}").css('left', left + 'px').css('top',top + 'px')
 
     remove: ->
-      $("##{@id} .edit").off 'click', @onEdit
-      $("##{@id} .show").off 'click', @onShow
-      $("##{@id} .star").off 'click', @onStar
+      # We use a short delay to give the mouseover handler opportunity
+      # to set the mouseIsOver flag to true.  Otherwise, we'd never
+      # keep the tooltip around if the user moved his mouse from the
+      # node to the tooltip because the node's mouseout handler,
+      # which calls this method, would execute before the tooltip's
+      # mouseover handler.
+      setTimeout =>
+        unless mouseIsOver
+          $("##{@id} .edit").off 'click'
+          $("##{@id} .show").off 'click'
+          $("##{@id} .star").off 'click'
+          $("##{@id}").remove()
+          @dispatchEvent 'removed'
+      ,100
+
+    onMouseover: =>
+      mouseIsOver = true
+
+    onMouseout: =>
+      mouseIsOver = false
+      @remove()
 
     onEdit: =>
-      console.log 'edit'
+      @dispatchEvent 'editData', @data
 
     onShow: =>
-      console.log 'show'
+      @dispatchEvent 'toggleVisibility', @data
 
     onStar: =>
-      console.log 'star'
+      @dispatchEvent 'markAsFavorite', @data
