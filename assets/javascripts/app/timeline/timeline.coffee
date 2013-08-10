@@ -374,7 +374,7 @@ define ['./event-dispatcher',
           tip.off 'removed'
           tip = null
         tips[tip.id] = tip
-      , 2000
+      , 1500
 
     onEditData: (d) =>
       console.log 'editData', d

@@ -28,7 +28,7 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
       bounds = @el.getBoundingClientRect()
       top = bounds.top - 115 + 5
       left = bounds.left - (200 - 150)*0.5
-      $("##{@id}").css('left', left + 'px').css('top',top + 'px')
+      $("##{@id}").hide().css('left', left + 'px').css('top',top + 'px').fadeIn()
 
     remove: ->
       # We use a short delay to give the mouseover handler opportunity
@@ -42,7 +42,7 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
           $("##{@id} .edit").off 'click'
           $("##{@id} .show").off 'click'
           $("##{@id} .star").off 'click'
-          $("##{@id}").remove()
+          $("##{@id}").fadeOut 'fast', -> $(@).remove()
           @dispatchEvent 'removed'
       ,100
 
