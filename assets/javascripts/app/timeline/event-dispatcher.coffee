@@ -1,5 +1,5 @@
 define [], () ->
-  
+
   class EventDispatcher
 
     callbacks = {}
@@ -9,19 +9,20 @@ define [], () ->
         callbacks[eventType] = []
       callbacks[eventType].push(callback)
 
-    off: (eventType, callback) ->
+    off: (eventType, callback=null) ->
       if @hasListener(eventType)
-        index = callbacks[eventType].indexOf(callback)
-        if index > -1
-          callbacks[eventType].splice(index, 1)
+        if callback?
+          index = callbacks[eventType].indexOf(callback)
+          if index > -1
+            callbacks[eventType].splice(index, 1)
+        else
+          callbacks[eventType] = null
 
     hasListener: (eventType) ->
       callbacks[eventType] and callbacks[eventType].length > 0
 
     dispatchEvent: (eventType, args) ->
-      #console.log "looking for #{eventType} in", callbacks
       if @hasListener(eventType)
-        #console.log 'callback found'
         callback.apply(null, [args]) for callback in callbacks[eventType]
 
     removeAllListeners: ->
