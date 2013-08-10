@@ -3,11 +3,9 @@
         <p id="text" class="text">{text}</p>
         <div class="buttons">
             <div class="btn edit">
-                <img src="/img/arrow.png"/>
                 <p class="btnText">Edit</p>
             </div>
             <div class="btn show">
-                <img src="/img/eye.png"/>
                 <p class="btnText">
                     {?isHidden}
                         Show
@@ -17,7 +15,6 @@
                 </p>
             </div>
             <div class="btn star">
-                <img src="/img/star.png"/>
                 <p class="btnText">Star</p>
             </div>
         </div>
