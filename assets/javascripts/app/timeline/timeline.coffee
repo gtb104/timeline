@@ -216,7 +216,10 @@ define ['./event-dispatcher',
           .ticks(d3.time.days, 1)
           .tickFormat(d3.time.format("%b %e"))
           .tickSubdivide(23)
-      @main.select(".main.axis.date").call @xDateAxis
+      if direction
+        @main.select(".main.axis.date").transition().duration(500).call @xDateAxis
+      else
+        @main.select(".main.axis.date").call @xDateAxis
 
       rects = @itemRects.selectAll('.mainItem')
         .data(visItems, (d) ->
