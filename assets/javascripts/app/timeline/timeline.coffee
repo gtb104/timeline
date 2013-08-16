@@ -306,6 +306,7 @@ define ['./event-dispatcher',
       @onReset()
 
     centerElement: (el) =>
+      clearTimeout(@showTooltipTimer)
       currentCenterdate = @x.invert(@x.range()[1]*0.5)
       newCenterDate = el.start
       offset = newCenterDate - currentCenterdate

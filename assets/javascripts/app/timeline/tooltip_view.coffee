@@ -16,9 +16,12 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
     renderData: ->
       id: @id,
       text: @data.text,
-      isHidden: false #use 1 and '' as true/false are not treated like true booleans b Dust
+      isHidden: false #use 1 and '' as true/false are not treated like true booleans by Dust
 
     postRender: ->
+      sh = $('#text')[0].scrollHeight
+      h = $('#text')[0].getBoundingClientRect().height
+      $('.ellipses').hide() if h >= sh
       $("##{@id} .edit").on 'click', @onEdit
       $("##{@id} .show").on 'click', @onShow
       $("##{@id} .star").on 'click', @onStar

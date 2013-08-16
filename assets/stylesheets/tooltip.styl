@@ -16,13 +16,29 @@
       font: 11px sans-serif
       margin: 0
       color: #eee
+      position: relative
+      overflow: hidden
+      line-height: 1.2em
+      height: 6em      /* 4 times the line-height to show 4 lines */
+      span
+        //content: "..."
+        font-weight: bold
+        position: absolute
+        bottom: 0
+        right: 0
+        padding-left: 2px
+        background-color: #333
+      /*
+      font: 11px sans-serif
+      margin: 0
+      color: #eee
       display: -webkit-box
       -webkit-line-clamp: 5
       -webkit-box-orient: vertical
       -moz-box-orient: vertical
       -ms-box-orient: vertical
       overflow: hidden
-      text-overflow: ellipsis
+      text-overflow: ellipsis*/
     .buttons
       position: absolute
       bottom: 5px
@@ -35,13 +51,13 @@
         &:nth-child(even)
           margin: 0 10px 0 10px
         &.edit
-          background: no-repeat url("/img/arrow.png")
+          background: no-repeat url('/img/arrow.png')
           background-position-x: 5px
         &.show
-          background: no-repeat url("/img/eye.png")
+          background: no-repeat url('/img/eye.png')
           background-position-x: 5px
         &.star
-          background: no-repeat url("/img/star.png")
+          background: no-repeat url('/img/star.png')
           background-position-x: 5px
         &:hover
           background-color: #666

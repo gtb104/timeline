@@ -1,6 +1,6 @@
 <div id="{id}" class="timeline-tooltip">
     <div class="content">
-        <p id="text" class="text">{text}</p>
+        <p id="text" class="text" title="{text}">{text}<span class="ellipses">...</span></p>
         <div class="buttons">
             <div class="btn edit">
                 <p class="btnText">Edit</p>
