@@ -12,6 +12,9 @@ var config = {
     ],
     "exclude": [],
     "throttle": 0,
+    "interval": 100,
+    "binaryInterval": 300,
+    "usePolling": true,
     "excludeRegex": {},
     "compiledJavascriptDir": [
       "public",
