@@ -1,4 +1,7 @@
-define ['./event-dispatcher', 'templates'], (EventDispatcher,templates) ->
+define [
+  './event-dispatcher',
+  'timelineTPL'
+], (EventDispatcher,templates) ->
 
   class AddEventView extends EventDispatcher
 

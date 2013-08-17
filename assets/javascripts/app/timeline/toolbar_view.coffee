@@ -1,4 +1,8 @@
-define ['jquery', './event-dispatcher', 'templates'], ($,EventDispatcher,templates) ->
+define [
+  'jquery',
+  './event-dispatcher',
+  'timelineTPL'
+], ($,EventDispatcher,templates) ->
 
   class Toolbar extends EventDispatcher
 

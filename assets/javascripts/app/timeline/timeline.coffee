@@ -1,8 +1,10 @@
-define ['./event-dispatcher',
+define [
+  './event-dispatcher',
   './toolbar_view',
   './add_event_view',
   './tooltip_view',
-  'd3'], (EventDispatcher,ToolbarV,AddEventV,TooltipV) ->
+  'd3'
+], (EventDispatcher,ToolbarV,AddEventV,TooltipV) ->
 
   exports = {}
 

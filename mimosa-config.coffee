@@ -1,5 +1,7 @@
 exports.config =
   modules: ['lint', 'server', 'require', 'minify', 'live-reload', 'require-library-package']
+  template:
+    outputFileName: "timelineTPL"
   lint:
     compiled:
       css: true

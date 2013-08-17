@@ -1,5 +1,6 @@
-define ['jquery',
-  'templates',
+define [
+  'jquery',
+  'timelineTPL',
   './random-data',
   './timeline/timeline'
 ], ($,templates,RandomData,Timeline) ->

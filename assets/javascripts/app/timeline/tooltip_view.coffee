@@ -1,4 +1,8 @@
-define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates) ->
+define [
+  'jquery',
+  './event-dispatcher',
+  'timelineTPL'
+], ($,EventDispatcher,templates) ->
 
   class TimelineTooltip extends EventDispatcher
 
@@ -12,6 +16,7 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
       templates.render 'tooltip_view', @renderData(), (err,out) ->
         $('#timeline-container').append out
       @postRender()
+      @
 
     renderData: ->
       id: @id,
@@ -19,9 +24,12 @@ define ['jquery','./event-dispatcher', 'templates'],($,EventDispatcher,templates
       isHidden: false #use 1 and '' as true/false are not treated like true booleans by Dust
 
     postRender: ->
-      sh = $('#text')[0].scrollHeight
-      h = $('#text')[0].getBoundingClientRect().height
-      $('.ellipses').hide() if h >= sh
+      el = $('#text').get(0)
+      if el
+        sh = el.scrollHeight
+        h = el.getBoundingClientRect().height
+        $('.ellipses').hide() if h >= sh
+      else
       $("##{@id} .edit").on 'click', @onEdit
       $("##{@id} .show").on 'click', @onShow
       $("##{@id} .star").on 'click', @onStar
