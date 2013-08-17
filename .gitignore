@@ -14,19 +14,13 @@
 /tmp
 
 ## Ignore all generated files
-/coverage
-/rdoc
-/wiki
 /packaging
-npm-debug.log
 *.tmproj
-azure_error
-what
 *.sublime-workspace
 
 # Output folder
 /public
-#/dist
+/build
 
 # Numerous always-ignore extensions
 *~
@@ -34,13 +28,10 @@ what
 *.patch
 *.err
 *.orig
-*.log
 *.rej
 *.swo
 *.swp
-*.vi
 *~
-*.sass-cache
 
 # OS or Editor folders
 .DS_Store
