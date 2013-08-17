@@ -1,0 +1,1 @@
+require({urlArgs:"b="+(new Date).getTime(),paths:{jquery:"vendor/jquery",d3:"vendor/d3.v3"}},["app/example-view"],function(e){var r;return r=new e,r.render("body")});
