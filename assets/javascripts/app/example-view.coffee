@@ -1,10 +1,8 @@
-define ['lodash',
-  'jquery',
+define ['jquery',
   'templates',
   './random-data',
-  './timeline/timeline',
-  'd3'
-], (_,$,templates,RandomData,Timeline) ->
+  './timeline/timeline'
+], ($,templates,RandomData,Timeline) ->
 
   class ExampleView
 
@@ -17,7 +15,6 @@ define ['lodash',
       @timeline = Timeline
       @timeline.rootDOMElement '#foofoo'
       @timeline.createTimeline(RandomData.generate())
-      @index = @timeline.selectedItem().id
       @timeline.on 'selectionUpdate', @selectionUpdate
       $('#next').on 'click', @next
       $('#previous').on 'click', @previous
