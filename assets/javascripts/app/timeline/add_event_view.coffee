@@ -43,6 +43,8 @@ define ['./event-dispatcher', 'templates'], (EventDispatcher,templates) ->
       userGenerated: true
 
     remove: ->
+      $('#addEventSave').off 'click'
+      $('#addEventCancel').off 'click'
       $('.addEventWrapper').remove()
 
     onSave: (e) =>
