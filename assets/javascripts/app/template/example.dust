@@ -1,5 +1,0 @@
-<button id="previous">previous item</button>
-<button id="next">next item</button>
-<button id="newData">generate new data</button>
-<br/>
-<div id="foofoo"></div>

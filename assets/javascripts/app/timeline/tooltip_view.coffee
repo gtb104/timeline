@@ -1,8 +1,7 @@
 define [
   'jquery',
-  './event-dispatcher',
-  'timelineTPL'
-], ($,EventDispatcher,templates) ->
+  './event-dispatcher'
+], ($,EventDispatcher) ->
 
   class TimelineTooltip extends EventDispatcher
 
@@ -13,15 +12,26 @@ define [
       @render()
 
     render: ->
-      templates.render 'tooltip_view', @renderData(), (err,out) ->
-        $('#timeline-container').append out
+      view = "<div id='#{@id}' class='timeline-tooltip'>
+                <div class='ttContent'>
+                    <p id='text' class='text' title='#{@data.text}'>#{@data.text}<span class='ellipses'>...</span></p>
+                    <div class='ttButtons'>
+                        <div class='ttBtn edit'>
+                            <p class='btnText'>Edit</p>
+                        </div>
+                        <div class='ttBtn show'>
+                            <p class='btnText'>#{if @data.hide then 'Show' else 'Hide'}</p>
+                        </div>
+                        <div class='ttBtn star'>
+                            <p class='btnText'>Star</p>
+                        </div>
+                    </div>
+                </div>
+                <div class='ttArrow'></div>
+              </div>"
+      $('#timeline-container').append view
       @postRender()
       @
-
-    renderData: ->
-      id: @id,
-      text: @data.text,
-      isHidden: false #use 1 and '' as true/false are not treated like true booleans by Dust
 
     postRender: ->
       el = $('#text').get(0)

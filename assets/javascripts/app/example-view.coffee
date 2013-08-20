@@ -1,15 +1,19 @@
 define [
   'jquery',
-  'timelineTPL',
   './random-data',
   './timeline/timeline'
-], ($,templates,RandomData,Timeline) ->
+], ($,RandomData,Timeline) ->
 
   class ExampleView
 
     render: (element) ->
-      templates.render 'example', {}, (err, out) ->
-        $(element).append out
+      $(element).append """
+<button id="previous">previous item</button>
+<button id="next">next item</button>
+<button id="newData">generate new data</button>
+<br/>
+<div id="foofoo"></div>
+"""
       @postRender()
 
     postRender: ->

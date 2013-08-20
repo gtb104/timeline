@@ -1,7 +1,6 @@
 define [
-  './event-dispatcher',
-  'timelineTPL'
-], (EventDispatcher,templates) ->
+  './event-dispatcher'
+], (EventDispatcher) ->
 
   class AddEventView extends EventDispatcher
 
@@ -9,8 +8,25 @@ define [
       @render()
 
     render: ->
-      templates.render 'add_event', {}, (err, out) =>
-        $(@rootDOMElement).append out
+      $(@rootDOMElement).append """
+<section class="addEventWrapper">
+  <div class="borderContainer dropshadow">
+    <div class="mainContainer">
+      <label for="eventTitle">Title: </label>
+      <input id="eventTitle" type="text" tabindex="1" />
+      <br/>
+      <label for="eventDate">Date: </label>
+      <input id="eventDate" type="date" />
+      <br/>
+      <label for="eventText">Description: </label>
+      <textarea id="eventText" tabindex="2"></textarea>
+    </div>
+    <button id="addEventCancel" class="button">Cancel</button>
+    <button id="addEventSave" class="button" tabindex="3">Save</button>
+  </div>
+  <div class="arrow"></div>
+</section>
+"""
       @postRender()
       @
 
