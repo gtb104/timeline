@@ -1,0 +1,13 @@
+{
+  "test_page": ".mimosa/testemRequire/runner.html",
+  "routes": {
+    "/js": "public/javascripts"
+  },
+  "launch_in_dev": [
+    "Firefox",
+    "Chrome"
+  ],
+  "launch_in_ci": [
+    "PhantomJS"
+  ]
+}

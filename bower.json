@@ -1,0 +1,25 @@
+{
+  "name": "timeline-sandbox",
+  "version": "0.1.0",
+  "devDependencies": {
+    "requirejs":"latest"
+  },
+  "dependencies": {
+    "jquery":"1.8.1",
+    "d3":"3.2.8"
+  },
+  "main":["build/noShimNoDependencies/berico-timeline.js"],
+  "ignore": [
+    "server.coffee",
+    "views",
+    "test",
+    "assets",
+    "node_modules",
+    "routes",
+    "makefile",
+    "mimosa-config.coffee",
+    "mimosa-config-commented.coffee",
+    "bower.json",
+    ".bowerrc"
+  ]
+}

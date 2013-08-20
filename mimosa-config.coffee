@@ -1,7 +1,9 @@
 exports.config =
-  modules: ['lint', 'server', 'require', 'minify', 'live-reload', 'require-library-package']
+  modules: ['lint', 'server', 'require', 'minify', 'live-reload', 'testem-require', 'require-library-package', 'bower']
+
   template:
     outputFileName: "timelineTPL"
+
   lint:
     compiled:
       css: true
@@ -15,6 +17,11 @@ exports.config =
         'vendor-prefix': false
         'known-properties': false
         'duplicate-properties': false
+
+  testemRequire:
+    mochaSetup:
+      globals:["$"]
+
   libraryPackage:
     packaging:
       shimmedWithDependencies: true
@@ -30,4 +37,4 @@ exports.config =
     name: 'berico-timeline.js'
     main: 'app/timeline/timeline'
     mainConfigFile: 'javascripts/main.js'
-    removeDependencies: ['d3']
+    removeDependencies: ['d3','jquery']

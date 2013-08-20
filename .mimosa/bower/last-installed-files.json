@@ -1,0 +1,5 @@
+[
+  "assets/javascripts/vendor/d3/d3.js",
+  "assets/javascripts/vendor/jquery/jquery.js",
+  "assets/javascripts/vendor/requirejs/require.js"
+]
