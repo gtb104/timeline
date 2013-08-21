@@ -1,6 +1,6 @@
 {
   "name": "timeline-d3",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "",
   "author": "Geoffrey T. Bell",
   "description": "A timeline demo written in HTML, CoffeeScript, D3, and Stylus",
