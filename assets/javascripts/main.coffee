@@ -3,7 +3,7 @@ require
   paths:
     jquery: 'vendor/jquery/jquery',
     d3: 'vendor/d3/d3'
-  , ['app/example-view']
-  , (ExampleView) ->
-    view = new ExampleView()
+  , ['app/test-frame']
+  , (TestFrame) ->
+    view = new TestFrame()
     view.render('body')

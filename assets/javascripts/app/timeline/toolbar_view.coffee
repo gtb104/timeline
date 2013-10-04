@@ -5,10 +5,8 @@ define [
 
   class Toolbar extends EventDispatcher
 
-    constructor: (@rootDOMElement) ->
-
     render: (element) ->
-      $(@rootDOMElement).append """
+      element.append """
 <section id="timeline-toolbar" class="timeline-toolbar">
   <div id="timeline-toggle-notes" class="timeline-toolbar-button" title="Toggle User Notes" data-event="toggleUserNotes">T</div>
   <div id="timeline-add-note" class="timeline-toolbar-button" title="Add Note" data-event="addUserNote">A</div>

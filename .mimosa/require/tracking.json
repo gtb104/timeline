@@ -1,0 +1,56 @@
+{
+  "shims": {
+    "/javascripts/main.js": null
+  },
+  "deps": {
+    "/javascripts/app/random-data.js": [],
+    "/javascripts/app/test-frame.js": [
+      "jquery",
+      "./random-data",
+      "./timeline/timeline"
+    ],
+    "/javascripts/app/timeline/add_event_view.js": [
+      "./event-dispatcher"
+    ],
+    "/javascripts/app/timeline/event-dispatcher.js": [],
+    "/javascripts/app/timeline/timeline.js": [
+      "./event-dispatcher",
+      "./toolbar_view",
+      "./add_event_view",
+      "./tooltip_view",
+      "d3"
+    ],
+    "/javascripts/app/timeline/toolbar_view.js": [
+      "jquery",
+      "./event-dispatcher"
+    ],
+    "/javascripts/app/timeline/tooltip_view.js": [
+      "jquery",
+      "./event-dispatcher"
+    ],
+    "/javascripts/main.js": [
+      "app/test-frame"
+    ]
+  },
+  "aliases": {
+    "/javascripts/main.js": {
+      "jquery": "vendor/jquery/jquery",
+      "d3": "vendor/d3/d3"
+    }
+  },
+  "mappings": {
+    "/javascripts/main.js": null
+  },
+  "packages": {
+    "/javascripts/main.js": null
+  },
+  "originalConfig": {
+    "paths": {
+      "jquery": "vendor/jquery/jquery",
+      "d3": "vendor/d3/d3"
+    }
+  },
+  "requireFiles": [
+    "/javascripts/main.js"
+  ]
+}

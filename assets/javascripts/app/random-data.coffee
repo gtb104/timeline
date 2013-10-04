@@ -30,7 +30,7 @@ define [],() ->
         type = types[@randomNumber(0, types.length)]
         workItem =
           id: @uuid(),
-          title: "#{type} #{totalWorkItems}",
+          title: "#{type} #{totalWorkItems} asfd dsfg sdf sdf sadf sadf sadf sd",
           start: dt,
           text: "This is the text of a #{type}.  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
           type: type,

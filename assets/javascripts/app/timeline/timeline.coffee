@@ -1,21 +1,30 @@
 define [
-  './event-dispatcher',
-  './toolbar_view',
-  './add_event_view',
-  './tooltip_view',
+  './event-dispatcher'
+  './toolbar_view'
+  './add_event_view'
+  './tooltip_view'
   'd3'
-], (EventDispatcher,ToolbarV,AddEventV,TooltipV) ->
-
-  exports = {}
+], (EventDispatcher, ToolbarV, AddEventV, TooltipV) ->
 
   class Timeline extends EventDispatcher
     _numberOfLanes: 4
+    _nodeWidth: 150
     _data: null
     _parsedData: null
     _selectedItem: null
     _rootDOMElement: null
     _popupClass: AddEventV
     _showTooltip: true
+    _highlightObjects: []
+
+    constructor: (options) ->
+      @numberOfLanes options.numberOfLanes if options.numberOfLanes?
+      @data options.data if options.data?
+      @selectedItem options.selectedItem if options.selectedItem?
+      @rootDOMElement options.rootDOMElement if options.rootDOMElement?
+      @popupClass options.popupClass if options.popupClass?
+      @showTooltip options.showTooltip if options.showTooltip?
+      @nodeWidth options.nodeWidth if options.nodeWidth?
 
     addToLane: (chart, item) ->
       index = item.lane
@@ -52,47 +61,44 @@ define [
       lanes: lanes
       items: items
 
-    createTimeline: (data) =>
-      @data(data) if data?
-      lanes = @_parsedData.lanes
-      items = @_parsedData.items
-      margin =
-        top: 0
-        right: 0
-        bottom: 0
-        left: 0
-      width = 960 - margin.left - margin.right
-      height = 200 - margin.top - margin.bottom
-      mainHeight = height-50
-      @x = d3.time.scale()
-        .domain([ d3.time.sunday(d3.min(items, (d) -> d.start)), d3.max(items, (d) -> d.start) ])
-        .range([ 0, width ])
-      @y = d3.scale.linear()
-        .domain([ 0, @numberOfLanes() ])
-        .range([ 0, mainHeight ])
-      @zoom = d3.behavior.zoom()
-        .x(@x)
-        #.scaleExtent([1, 10]) # Comment this out so the resetting of scale after .x(@x)
-        .on('zoom', @zoom)     # update on click doesn't mess things up
+    # This only works if called once.  If you use it in multiple places
+    # we'll need to add a unique id to the timers. http://stackoverflow.com/a/4541963
+    timer = 0
+    delay = (callback, ms) =>
+      clearTimeout timer
+      timer = setTimeout callback, ms
 
-      unless @rootDOMElement()
-        @rootDOMElement 'body'
+    drawBaseChart: =>
+      $el = $('#timeline-container')
+      $el.find('.chart').remove()
+
+      lanes = @_parsedData.lanes
+      viewport = $el[0].getBoundingClientRect()
+      width = viewport.width
+      @x.range([ 0, width ])
+      height = 200
+      mainHeight = height-30
+      @y.range([ 0, mainHeight ])
+      @zoom.x(@x)
 
       # MAIN SVG AND G CONTAINER
-      @chart = d3.select(@rootDOMElement()).append('section')
-        .attr('id','timeline-container')
-        .attr('class','timeline-container')
-        .append('svg:svg')
-        .attr('width', width + margin.right + margin.left)
-        .attr('height', height + margin.top + margin.bottom)
+      @chart = d3.select('#timeline-container').append('svg:svg')
+        .attr('width', width)
+        .attr('height', height)
         .attr('class', 'chart')
       @chart.append('defs').append('clipPath')
         .attr('id', 'clip')
         .append('rect')
         .attr('width', width)
         .attr('height', mainHeight)
+      d3.select('defs').append('clipPath')
+        .attr('id', 'text-clip')
+        .append('rect')
+        .attr("width", @_nodeWidth - 5)
+        .attr("height", (d) =>
+          0.8 * @y(1)
+        )
       @main = @chart.append('g')
-        .attr('transform', "translate(#{margin.left},#{margin.top})")
         .attr('width', width)
         .attr('height', mainHeight)
         .attr('class', 'main')
@@ -100,7 +106,6 @@ define [
       # FILL OVERLAY
       @main.append('svg:rect')
         .attr('class', 'fillOverlay')
-        .attr('transform', "translate(#{margin.left},#{margin.top})")
         .attr('width', width)
         .attr('height', mainHeight)
 
@@ -132,7 +137,6 @@ define [
       # PAN/ZOOM OVERLAY
       @main.append('svg:rect')
         .attr('class', 'overlay')
-        .attr('transform', "translate(#{margin.left},#{margin.top})")
         .attr('width', width)
         .attr('height', mainHeight)
         .call(@zoom)
@@ -160,14 +164,6 @@ define [
       @main.append('svg:polygon')
         .attr('points', "#{width*0.5-10},0 #{width*0.5+10},0 #{width*0.5},10")
         .attr('class', 'triangle')
-
-      @toolbar = new ToolbarV('.timeline-container')
-      @toolbar.render()
-      @toolbar.on 'reset', @onReset
-      @toolbar.on 'zoomIn', @onZoomIn
-      @toolbar.on 'zoomOut', @onZoomOut
-      @toolbar.on 'toggleUserNotes', @onToggleUserNotes
-      @toolbar.on 'addUserNote', @onAddUserNote
 
       startItem = @data()[@data().length-1]
       @selectedItem startItem
@@ -237,13 +233,12 @@ define [
         .attr('transform', (d) =>
           width = @chart.attr('width')
           if direction is 'right'
-            "translate(-150,#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
+            "translate(-#{@_nodeWidth},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
           else if direction is 'left'
             "translate(#{width},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
           else
             "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
         )
-        .style('opacity', (d) -> if d.userGenerated then showUserNotes else 1)
         .on("mouseover", (d) ->
           d3.select(@).classed 'hover', true
           context.createTooltip @, d if context.showTooltip()
@@ -259,13 +254,23 @@ define [
           @centerElement d
         )
       rectsEnter.append("rect")
-        .attr("width", 150)
+        .attr("width", @_nodeWidth)
         .attr("height", (d) =>
           0.8 * @y(1)
+        )
+        .each( (d) ->
+          for obj in context._highlightObjects
+            if d.title.indexOf(obj.keyword) >= 0 or d.text.indexOf(obj.keyword) >= 0
+              d3.select(@).style(
+                'stroke': obj.color
+                'stroke-width': 3
+                'stroke-dasharray': "#{context._nodeWidth}, #{context._nodeWidth * 2}"
+              )
         )
       rectsEnter.append('path')
         .attr('width', 30)
         .attr('height', 30)
+        .attr('y', 3)
         .attr('d', (d) ->
           if d.type is 'note'
             'M7.75 2.001c.693-.021 1.312.259 1.855.767 3.797 3.542 7.596 7.084 11.403 10.613.263.244.617.375.923.569.221.14.455.27.641.454.431.428.842.881 1.251 1.334.592.654.653 1.318.239 2.122-.446.867-.692 1.805-.424 2.774.146.531.394 1.084.738 1.486 1.031 1.199 2.128 2.333 3.208 3.483.286.306.505.63.378 1.078-.127.45-.467.587-.873.657-1.107.191-2.212.403-3.314.624-.521.104-.937-.011-1.295-.461l-1.125-1.229c-.883-1.115-2.032-1.255-3.262-1.035-.502.089-.99.299-1.47.499-.597.248-1.319.128-1.778-.364-.43-.458-.865-.911-1.264-1.397-.188-.229-.303-.525-.443-.798-.132-.253-.213-.55-.385-.763-3.316-4.108-6.646-8.206-9.969-12.308-1.096-1.354-1.04-2.938.148-4.22.939-1.013 1.885-2.019 2.827-3.029.54-.579 1.191-.868 1.991-.856zm6.21 19.202l6.041-6.403-.481-.459c-1.449-1.351-2.898-2.701-4.349-4.052-2.194-2.044-4.385-4.09-6.583-6.128-.629-.585-1.126-.615-1.652-.068-.995 1.033-1.972 2.084-2.937 3.148-.454.5-.45 1.056-.049 1.603.139.189.289.37.437.552 1.508 1.863 3.018 3.725 4.527 5.586l5.046 6.221zm8.731 1.584c-.973-1.861-1.028-3.542-.229-5.519.059-.146.055-.403-.029-.519-.289-.387-.623-.731-.918-1.065l-6.649 7.141.587.678 3.016-3.193c.295-.312.576-.643.885-.938.344-.328.826-.314 1.129-.003.326.337.338.851.013 1.246-.206.249-.435.478-.653.715l-1.949 2.108c.741 0 1.332-.071 1.898.021.586.095 1.148.35 1.729.537l1.17-1.209zm.061 2.558c.314.282.605.757.938.791.547.059 1.119-.17 1.678-.275l-1.574-1.671-1.042 1.155z'
@@ -273,7 +278,8 @@ define [
             'M22 8.184v0zM23.729 19.064c-.683.695-1.369 1.41-2.039 2.119-.1.108-.154.367-.156.526-.016 1.187-.01 2.481-.012 3.669 0 .133-.01-.379-.017.621h-17.505v-21.567s2.718-.02 3.975-.006c.071.002.364.129.385.222.195.868.73 1.363 1.6 1.375 1.987.026 3.979-.028 5.966-.055.826-.01 1.447-.676 1.562-1.447.041-.272.156-.528.385-.524l4.127.002v4.001l.009-.032c.599-.593.896-1.283 1.771-1.492.051-.011.113-.106.113-.162-.017-.828.06-1.677-.086-2.484-.214-1.189-1.179-1.83-2.5-1.83h-16.719c-.186 0-.371.007-.556.023-1.115.104-2.032 1.123-2.032 2.262 0 7.143 0 14.283.003 21.427 0 .173.014.354.059.521.309 1.125 1.207 1.764 2.496 1.766 5.586.002 11.168.003 16.752-.002.271 0 .547-.016.808-.083 1.108-.287 1.774-1.205 1.78-2.46.009-2.054.002-4.104.002-6.156l-.024-.366-.147.132zM27.654 10.896c-.721-.797-1.471-1.566-2.254-2.295-.629-.586-1.215-.517-1.817.094-2.576 2.626-5.125 5.282-7.746 7.864-.929.916-1.578 1.89-1.815 3.201-.213 1.174-.58 2.323-.892 3.518l.251-.021c1.606-.436 3.215-.871 4.819-1.312.135-.035.272-.117.37-.221 3.011-3.057 6.017-6.121 9.019-9.187.509-.525.557-1.1.065-1.641zm-13.519 11.5l.436-1.696 1.191 1.255-1.627.441zm10.205-10.522c-.639.667-1.29 1.324-1.936 1.98-1.773 1.809-3.545 3.614-5.316 5.423l-.27.322c-.324-.349-.611-.654-.916-.973l.236-.254c2.365-2.413 4.734-4.825 7.096-7.244.188-.19.363-.334.645-.245.322.104.531.328.607.65.024.099-.064.255-.146.341zM19.432 10.258c.077-.395.021-1.256.021-1.256h-13.453v1.775l.319.027c4.091.003 8.398.005 12.488.001.343 0 .572-.268.625-.547zM13.002 17.002h-7.002v2h6.481c.176-1 .344-2 .521-2zM6 23.001h5.476c.152-1 .303-2 .457-2h-5.933v2zM15.205 14.692c.553-.55 1.094-.691 1.684-1.691h-10.889v1.712c0 .013.329.034.379.033 2.779.003 5.776.011 8.555.006.09 0 .211-.001.271-.06z'
         )
       rectsEnter.append('text')
-        .attr('x', '40')
+        .attr('clip-path', 'url(#text-clip)')
+        .attr('x', 40)
         .attr('y', '1.6em')
         .text( (d) -> d.title )
       if (direction)
@@ -292,6 +298,9 @@ define [
         rects.order().attr('transform', (d) =>
           "translate(#{@x(d.start)},#{@y(d.lane) + 0.1 * @y(1) + 0.5})"
         )
+        rects.style('opacity', (d) -> if d.userGenerated then showUserNotes else 1)
+          .style('pointer-events', (d) -> if d.userGenerated
+            if showUserNotes then 'all' else 'none')
 
       # EXIT
       if (direction)
@@ -303,21 +312,6 @@ define [
           .remove()
       else
         rects.exit().remove()
-
-    reset: =>
-      @onReset()
-
-    centerElement: (el) =>
-      clearTimeout(@showTooltipTimer)
-      currentCenterdate = @x.invert(@x.range()[1]*0.5)
-      newCenterDate = el.start
-      offset = newCenterDate - currentCenterdate
-      start = new Date(@x.domain()[0]).getTime() + offset
-      end = new Date(@x.domain()[1]).getTime() + offset
-      @x.domain([start, end])
-      @zoom.x @x
-      direction = if offset < 0 then 'right' else 'left'
-      @draw(direction)
 
     zoom: =>
       @draw()
@@ -337,31 +331,6 @@ define [
       @zoom.scale(val-0.5)
       console.log 'val',@zoom.scale()
       @draw(true)
-
-    addItem: (item) =>
-      #console.log 'adding item', item
-      @_data.push item
-      @_parsedData = @parseData @_data
-      @draw()
-
-    nextItem: =>
-      index = @selectedItem().index
-      index += 1
-      data = @data()
-      if index < data.length
-        el = data[index]
-        @selectedItem el
-        @dispatchEvent 'selectionUpdate', el
-        @centerElement el
-
-    previousItem: =>
-      index = @selectedItem().index
-      index -= 1
-      if index >= 0
-        el = @data()[index]
-        @selectedItem el
-        @dispatchEvent 'selectionUpdate', el
-        @centerElement el
 
     tips = {}
     createTooltip: (el, d) ->
@@ -442,6 +411,155 @@ define [
         .style('pointer-events', -> if showUserNotes then 'all' else 'none')
         .transition().style('opacity', showUserNotes)
 
+
+    #--------------------------------------------------------------------------
+    #
+    #                               API METHODS
+    #
+    #--------------------------------------------------------------------------
+    ###
+      createTimeline( data : Object )
+      This is the main method for creating a timeline.  You may call this method
+      with or without passing it data.  If you do not pass data in, you should
+      set the data before calling this method as setting `data` does not
+      re-render the timeline.
+
+      The format of ech element within `data` needs to match the expected format.
+      See data() for details.
+    ###
+    createTimeline: (data) =>
+      unless @rootDOMElement()
+        @rootDOMElement 'body'
+      @data(data) if data?
+
+      items = @_parsedData.items
+      @x = d3.time.scale()
+        .domain([ d3.time.sunday(d3.min(items, (d) -> d.start)), d3.max(items, (d) -> d.start) ])
+      @y = d3.scale.linear()
+        .domain([ 0, @numberOfLanes() ])
+      @zoom = d3.behavior.zoom()
+        .on('zoom', @zoom)
+
+      d3.select(@rootDOMElement()).append('section')
+        .attr('id','timeline-container')
+        .attr('class','timeline-container')
+
+      @drawBaseChart()
+
+      toolbar = new ToolbarV().render($('#timeline-container'))
+      toolbar.on 'reset', @onReset
+      toolbar.on 'zoomIn', @onZoomIn
+      toolbar.on 'zoomOut', @onZoomOut
+      toolbar.on 'toggleUserNotes', @onToggleUserNotes
+      toolbar.on 'addUserNote', @onAddUserNote
+
+      window.onresize = => delay @drawBaseChart, 250
+
+    ###
+      centerElement( element : DOM Node )
+      Moves the `element` to the central line.
+    ###
+    centerElement: (element) =>
+      clearTimeout(@showTooltipTimer)
+      currentCenterdate = @x.invert(@x.range()[1]*0.5)
+      newCenterDate = element.start
+      offset = newCenterDate - currentCenterdate
+      start = new Date(@x.domain()[0]).getTime() + offset
+      end = new Date(@x.domain()[1]).getTime() + offset
+      @x.domain([start, end])
+      @zoom.x @x
+      direction = if offset < 0 then 'right' else 'left'
+      @draw(direction)
+
+    ###
+      nextItem()
+      Moves the Timeline to the object that follows immediately after the currently
+      selected object in chronological order.  This also updates `selectedItem`.
+    ###
+    nextItem: =>
+      index = @selectedItem().index
+      index += 1
+      data = @data()
+      if index < data.length
+        el = data[index]
+        @selectedItem el
+        @dispatchEvent 'selectionUpdate', el
+        @centerElement el
+
+    ###
+      previousItem()
+      Moves the Timeline to the object that immediately preceeds the currently
+      selected object in chronological order.  This also updates `selectedItem`.
+    ###
+    previousItem: =>
+      index = @selectedItem().index
+      index -= 1
+      if index >= 0
+        el = @data()[index]
+        @selectedItem el
+        @dispatchEvent 'selectionUpdate', el
+        @centerElement el
+
+    ###
+      addItem( item : Object )
+      Adds an event item to the Timeline.  The format of `item` needs to be in
+      the expected format.  See data() for details.
+    ###
+    addItem: (item) =>
+      #console.log 'adding item', item
+      @_data.push item
+      @_parsedData = @parseData @_data
+      @draw()
+
+    ###
+    highlightItems( highlightObjects : Array )
+    Highlight the supplied list of nodes.  The highlightObjects array expects the following format
+    {
+      keyword: String - The value to search for
+      color: String - color to use for the highlight
+    }
+    ###
+    highlightItems: (highlightObjects) =>
+      @_highlightObjects = highlightObjects
+      context = @
+      d3.selectAll('.mainItem rect')
+      .style(
+        'stroke': '#aaa'
+        'stroke-width': 1
+        'stroke-dasharray': 'none'
+      )
+      .each (d) ->
+        for obj in highlightObjects
+          if d.title.indexOf(obj.keyword) >= 0 or d.text.indexOf(obj.keyword) >= 0
+            d3.select(@).style(
+              'stroke': obj.color
+              'stroke-width': 3
+              'stroke-dasharray': "#{context._nodeWidth}, #{context._nodeWidth * 2}"
+            )
+
+    ###
+      reset()
+      Reset the Timeline to its default state.
+    ###
+    reset: =>
+      @onReset()
+
+    ###
+      data
+      The data to render.  Currently needs to be in the following format:
+          id: [unique id]
+          title: [event title]
+          start: [date/time that event started]
+          text: [event description]
+          type: ['note' or 'document']
+          userGenerated: [true/false]
+
+      data( data : Object )
+      Sets the data for the Timeline.
+
+      data()
+      Returns the data for the Timeline.
+    ###
     data: (data) =>
       if data?
         @_data = data
@@ -449,28 +567,79 @@ define [
       else
         @_data
 
-    numberOfLanes: (num) => if num? then @_numberOfLanes = num else @_numberOfLanes
+    ###
+      selectedItem
+      This is the Timeline element that is currently selected.  A selected
+      element is aligned with the center line.
 
+      selectedItem( item : DOM Node )
+      Sets the item as the selected element.
+
+      selectedItem()
+      Returns the selected element.
+    ###
     selectedItem: (item) => if item? then @_selectedItem = item else @_selectedItem
 
-    rootDOMElement: (el) => if el? then @_rootDOMElement = el else @_rootDOMElement
+    ###
+      rootDOMElement
+      This is the DOM element that the Timeline attaches itself to.  If not
+      set, the Timeline will attach to the body of the document.
 
-    popupClass: (cls) => if cls? then @_popupClass = cls else @_popupClass
+      rootDOMElement( element : DOM Node )
+      Sets the element that the Timeline will be attached to.
 
+      rootDOMElement()
+      Returns the element that the Timeline is attached to.
+    ###
+    rootDOMElement: (element) =>
+      if element? then @_rootDOMElement = element else @_rootDOMElement
+
+    ###
+      popupClass
+      The class that is instantiated when creating a popup; Used to add an event to
+      the timeline.
+
+      popupClass( classRef : Object )
+      Sets the class reference of the popup.
+
+      popupClass()
+      Returns the class reference used when creating popups.
+    ###
+    popupClass: (classRef) => if classRef? then @_popupClass = classRef else @_popupClass
+
+    ###
+      numberOfLanes
+      The number of rows of data to be displayed.
+
+      numberOfLanes( num : Int )
+      Sets the number of lanes.
+
+      numberOfLanes()
+      Returns the number of lanes.
+    ###
+    numberOfLanes: (num) => if num? then @_numberOfLanes = num else @_numberOfLanes
+
+    ###
+      showTooltip
+      Controls if we show tooltips when hovering over a node.
+
+      showTooltip( bool : Boolean )
+      Sets the showTooltip value.
+
+      showTooltip()
+      Returns the showTooltip value.
+    ###
     showTooltip: (bool) => if bool? then @_showTooltip = bool else @_showTooltip
 
-  T = new Timeline()
-  @exports =
-    createTimeline: T.createTimeline
-    centerElement: T.centerElement
-    nextItem: T.nextItem
-    previousItem: T.previousItem
-    addItem: T.addItem
-    on: T.on
-    off: T.off
-    data: T.data
-    reset: T.reset
-    selectedItem: T.selectedItem
-    rootDOMElement: T.rootDOMElement
-    popupClass: T.popupClass
-  @exports
+    ###
+      nodeWidth
+      How wide an individual node is drawn upon the timeline.  Default is 150px.
+      Height is controlled by the number of lanes.
+
+      nodeWidth( width : Int )
+      Sets width of a node.
+
+      nodeWidth()
+      Returns the width of a node.
+    ###
+    nodeWidth: (width) => if width? then @_nodeWidth = width else @_nodeWidth

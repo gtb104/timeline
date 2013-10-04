@@ -5,12 +5,10 @@
 dropshadow()
   -webkit-svg-shadow: arguments
 
-body
-  padding: 100px 20px
-
 .timeline-container
   position: relative
   font: 14px sans-serif
+  width: 100%
 
   .fillOverlay
     fill: #eee
@@ -51,17 +49,16 @@ body
         stroke: none
 
     .mainItem
-      stroke: #bbb
-      stroke-width: 0.5
-      fill: #ddd
-      cursor: pointer
-      &.hover
-        stroke: lightblue
-        fill: lightblue
+      rect
+        stroke: #aaa
+        stroke-width: 1
+        stroke-linecap: round
+        fill: #ddd
+        cursor: pointer
+        &.hover
+          stroke: lightblue
+          fill: lightblue
       path
-        fill: black
         pointer-events: none
       text
-        fill: black
-        stroke: none
         pointer-events: none
